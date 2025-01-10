@@ -1,0 +1,52 @@
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 2rem;
+    background-color: #282c34;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .navbar-logo img {
+    max-width: 100%; /* Prevents the image from exceeding its container */
+    height: auto;    /* Maintains aspect ratio */
+    width: auto;     /* Forces a maximum width */
+  }
+  
+  /* Center links */
+  .navbar-links {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+  }
+  
+  .navbar-links li a {
+    text-decoration: none;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  
+  .navbar-links li a:hover {
+    color: #61dafb;
+  }
+  
+  /* Login icon on the right */
+  .navbar-login .login-icon {
+    height: 40px;
+    width: auto;
+    cursor: pointer;
+  }
+  
+  @media (max-width: 768px) {
+    .navbar-links {
+      display: none; /* Hide links on smaller screens */
+    }
+  
+    .navbar {
+      justify-content: space-between;
+    }
+  }
+  

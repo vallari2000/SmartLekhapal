@@ -1,0 +1,107 @@
+/* General styles */
+body {
+  margin: 0;
+  font-family: "Arial", sans-serif;
+  background-color: #e9ecef;
+  color: #333;
+}
+
+/* App container */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  width: 100%;
+  text-align: center;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Content layout */
+.content {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* Card styles */
+.card {
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  width: 30%;
+  text-align: center;
+}
+
+.card h2 {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: #007bff;
+  text-transform: uppercase;
+}
+
+/* Admissions Table */
+.admissions table,
+.bank table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admissions table th,
+.bank table th,
+.admissions table td,
+.bank table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.admissions table th {
+  background-color: #28a745;
+  color: white;
+}
+
+.admissions table td {
+  background-color: #d4edda;
+}
+
+/* Chart */
+.chart {
+  height: auto;
+}
+
+/* Bank Table */
+.bank table th {
+  background-color: #007bff;
+  color: white;
+}
+
+.bank table td {
+  background-color: #f8f9fa;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card {
+    width: 90%;
+    margin-bottom: 20px;
+  }
+}

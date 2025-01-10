@@ -1,0 +1,100 @@
+.receipt-form-container {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  
+  .header {
+    text-align: center;
+    background-color: #00bfff;
+    color: black;
+    padding: 10px;
+  }
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+  
+  .summary-button {
+    padding: 8px 16px;
+    background-color: white;
+    color: #00bfff;
+    border: 2px solid #00bfff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+  
+  .summary-button:hover {
+    background-color: #00bfff;
+    color: white;
+  }
+/* .header h4 {
+  text-transform: none; 
+} */
+
+   .form-inputs {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+  }
+  .form-inputs label {
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    margin: 5px;
+  }
+  
+  .form-inputs input {
+    padding: 5px;
+    flex: 1;
+    margin-left: 10px;
+  }
+  
+  .receipt-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .receipt-table th,
+  .receipt-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .receipt-table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+  
+  .receipt-table input {
+    width: 90%;
+    padding: 5px;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  
+  .buttons-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+  }
+  
+  .buttons-container button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background-color: #00bfff;
+    color: white;
+    border-radius: 5px;
+  }
+  
+  .buttons-container button:hover {
+    background-color: #007acc;
+  }
+  
