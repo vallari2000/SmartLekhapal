@@ -246,8 +246,9 @@ class ReceiptViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Receipt.objects.all()
-        if not self.request.user.is_staff:
-            queryset = queryset.filter(zoneid=self.request.user.zoneid)
+        zoneid = self.request.session.get('zoneid')
+        if zoneid:
+            queryset = queryset.filter(zoneid=zoneid)
         return queryset.order_by('-date')
 
     def create(self, request):
@@ -364,10 +365,27 @@ class ReceiptViewSet(viewsets.ModelViewSet):
         try:
             month = request.data.get('month')
             zoneid = request.data.get('zoneid')
-            year = request.data.get('year', datetime.now().year)
+            year = request.data.get('year')
             
-            month_num = datetime.strptime(month, '%B').month
-            
+            # Only validate that required fields exist
+            if any(param is None for param in [month, zoneid, year]):
+                return Response(
+                    {'error': 'Missing required parameters', 'received': {
+                        'month': month,
+                        'zoneid': zoneid,
+                        'year': year
+                    }},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+            try:
+                month_num = datetime.strptime(month, '%B').month
+            except ValueError as e:
+                return Response(
+                    {'error': f'Invalid month format: {str(e)}'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
             receipts = self.get_queryset().filter(
                 zoneid=zoneid,
                 date__year=year,
@@ -384,6 +402,7 @@ class ReceiptViewSet(viewsets.ModelViewSet):
             
             return Response(list(receipts))
         except Exception as e:
+            print(f"Error in get_monthly_receipts: {str(e)}")
             return Response(
                 {'error': str(e)},
                 status=status.HTTP_400_BAD_REQUEST

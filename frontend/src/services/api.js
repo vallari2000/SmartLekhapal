@@ -91,6 +91,27 @@ export const createReceipt = async (data) => {
     }
 };
 
+export const getMonthlyReceipts = async (zoneid, month, year) => {
+    try {
+        console.log('Sending receipts request with:', { zoneid, month, year });
+
+        const response = await axiosInstance.post('receipts/get_monthly_receipts/', {
+            zoneid,  // Remove parseInt() since Payment endpoint doesn't use it
+            month,
+            year
+        });
+
+        console.log('API Receipts Response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('API Receipts Error:', error);
+        if (error.response?.status === 401) {
+            throw new Error('Session expired');
+        }
+        throw error;
+    }
+};
+
 export const getPayments = async () => {
     try {
         const response = await axiosInstance.get('payments/');

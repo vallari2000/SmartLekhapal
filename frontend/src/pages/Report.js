@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import './Report.css';
-import { getMonthlyPayments } from '../services/api';
+import { getMonthlyPayments, getMonthlyReceipts } from '../services/api';
 
 const Report = () => {
+  const location = useLocation();
   const [selected, setSelected] = useState('monthly');
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [monthlyData, setMonthlyData] = useState([]);
   const [zoneName, setZoneName] = useState("");
+  const [reportType, setReportType] = useState('payments'); // 'payments' or 'receipts'
 
+  // Define periods array
   const periods = [
     { id: 'monthly', label: 'Monthly' },
     { id: 'quarterly', label: 'Quarterly' },
@@ -16,6 +20,7 @@ const Report = () => {
     { id: 'yearly', label: 'Yearly' }
   ];
 
+  // Define months array
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -29,45 +34,52 @@ const Report = () => {
   );
 
   useEffect(() => {
+    // Determine report type based on the previous page
+    const fromReceipts = location.state?.from === 'receipts';
+    setReportType(fromReceipts ? 'receipts' : 'payments');
+
     const userData = localStorage.getItem('user');
     if (userData) {
       const { zone_name } = JSON.parse(userData);
       setZoneName(zone_name?.toUpperCase() || "");
     }
-  }, []);
+  }, [location]);
 
-  const fetchMonthlyData = async (month, year) => {
+  const fetchData = async (month, year) => {
     try {
-      const userData = JSON.parse(localStorage.getItem('user'));
-      const data = await getMonthlyPayments(userData.zoneid, month, year);
-      setMonthlyData(data);
+        const userData = localStorage.getItem('user');
+        if (!userData) {
+            console.error('No user data found in localStorage');
+            return;
+        }
+
+        const parsedUserData = JSON.parse(userData);
+        console.log('User data from localStorage:', parsedUserData);
+
+        // Change this check - we should check if zoneid is undefined or null, not if it's falsy
+        if (parsedUserData.zoneid === undefined || parsedUserData.zoneid === null) {
+            console.error('No zoneid found in user data');
+            return;
+        }
+
+        const fetchFunction = reportType === 'receipts' ? getMonthlyReceipts : getMonthlyPayments;
+        const data = await fetchFunction(parsedUserData.zoneid, month, year);
+        setMonthlyData(data);
     } catch (error) {
-      console.error('Error fetching monthly data:', error);
+        console.error('Error fetching data:', error);
     }
-  };
+};
 
   const handleMonthSelect = async (month) => {
     setSelectedMonth(month);
-    try {
-      const userData = JSON.parse(localStorage.getItem('user'));
-      const data = await getMonthlyPayments(userData.zoneid, month, selectedYear);
-      setMonthlyData(data);
-    } catch (error) {
-      console.error('Error fetching monthly data:', error);
-    }
+    await fetchData(month, selectedYear);
   };
-  
+
   const handleYearChange = async (e) => {
     const selectedYearValue = Number(e.target.value);
     setSelectedYear(selectedYearValue);
     if (selectedMonth) {
-      try {
-        const userData = JSON.parse(localStorage.getItem('user'));
-        const data = await getMonthlyPayments(userData.zoneid, selectedMonth, selectedYearValue);
-        setMonthlyData(data);
-      } catch (error) {
-        console.error('Error fetching monthly data:', error);
-      }
+      await fetchData(selectedMonth, selectedYearValue);
     }
   };
 
@@ -102,7 +114,7 @@ const Report = () => {
 
   const renderTable = () => (
     <div>
-      <h2>{selectedMonth} {selectedYear} Report for {zoneName}</h2>
+      <h2>{selectedMonth} {selectedYear} {reportType === 'receipts' ? 'Receipts' : 'Payments'} Report for {zoneName}</h2>
       <div style={{ overflowX: 'auto' }}>
         <table className="data-table">
           <thead>
@@ -128,8 +140,7 @@ const Report = () => {
               <th>Sundry Receipt</th>
               <th>Dividend</th>
               <th>TDS Amount</th>
-              <th>Transfer to HQ</th>
-              <th>Suspense</th>
+              <th>{reportType === 'receipts' ? 'Transfer from HQ' : 'Transfer to HQ'}</th>
               <th>Total Amount</th>
             </tr>
           </thead>
@@ -157,8 +168,7 @@ const Report = () => {
                 <td>₹{row.sundry_receipt?.toFixed(2) || '0.00'}</td>
                 <td>₹{row.dividend?.toFixed(2) || '0.00'}</td>
                 <td>₹{row.tds_amount?.toFixed(2) || '0.00'}</td>
-                <td>₹{row.transfer_to_hq?.toFixed(2) || '0.00'}</td>
-                <td>₹{row.suspense?.toFixed(2) || '0.00'}</td>
+                <td>₹{row[reportType === 'receipts' ? 'transfer_from_hq' : 'transfer_to_hq']?.toFixed(2) || '0.00'}</td>
                 <td>₹{row.total_amount?.toFixed(2) || '0.00'}</td>
               </tr>
             ))}

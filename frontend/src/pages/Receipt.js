@@ -203,9 +203,9 @@ const handleChange = (index, value) => {
       <div className="header">
         <div className="header-content">
           <h4>Receipts Entry for {zoneName}</h4>
-          <button className="summary-button" onClick={() => navigate('/report')}>
-            Generate Summary
-          </button>
+          <button className="summary-button" onClick={() => navigate('/report', { state: { from: 'receipts' } })}>
+  Generate Summary
+</button>
         </div>
       </div>
 
