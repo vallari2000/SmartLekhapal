@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Login, Payment
+from .models import Login, Payment, Receipt
 
 class LoginSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,4 +9,9 @@ class LoginSerializer(serializers.ModelSerializer):
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
+        fields = '__all__'
+
+class ReceiptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Receipt
         fields = '__all__'

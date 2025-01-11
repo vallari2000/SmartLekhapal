@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Receipt.css";
 import { useNavigate } from "react-router-dom"; 
-import { createPayment } from '../services/api'; 
+import { createPayment, getPaymentByVoucher } from '../services/api'; 
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -110,6 +110,61 @@ const Payment = () => {
       alert('Error submitting payment');
     }
   };
+  const handleView = async () => {
+    try {
+        const userData = localStorage.getItem('user');
+        if (!userData) {
+            alert('Please login first');
+            navigate('/login'); // Assuming you're using react-router
+            return;
+        }
+
+        const voucherNo = prompt("Enter Voucher Number:");
+        if (!voucherNo) return;
+
+        console.log('Fetching voucher:', voucherNo); // Debug log
+        
+        const response = await getPaymentByVoucher(voucherNo);
+        console.log('Response:', response); // Debug log
+        
+        if (response) {
+            setFormData({
+                date: response.date,
+                chqno: response.chqno,
+                voucherno: response.voucherno,
+                particulars: response.particulars,
+                amounts: [
+                    response.adm_fees,
+                    response.pm_fees,
+                    response.apm_fees,
+                    response.fppm_fees,
+                    response.samvad_donation,
+                    response.legal_fund,
+                    response.misc_donation,
+                    response.drf_fees,
+                    response.adv_samvad,
+                    response.interest_sb,
+                    response.interest_fd,
+                    response.investments,
+                    response.guest_house_receipt,
+                    response.building_fund,
+                    response.sundry_receipt,
+                    response.dividend,
+                    response.tds_amount,
+                    response.transfer_to_hq,
+                    response.total_amount
+                ].map(amount => amount?.toString() || "0")
+            });
+        }
+    } catch (error) {
+        console.error('View error:', error);
+        if (error.message === 'Please login first' || error.message === 'Please login again to refresh your session') {
+            navigate('/login');
+        } else {
+            alert(error.message || 'Error viewing record');
+        }
+    }
+};
 
   const clearForm = () => {
     setFormData({
@@ -132,39 +187,51 @@ const Payment = () => {
         </div>
       </div>
 
-      <div className="form-inputs">
-        <label>
-          Date:
-          <input
-            type="date"
-            value={formData.date}
-            onChange={(e) => setFormData({...formData, date: e.target.value})}
-          />
-        </label>
-        <label>
-          CHQ No.:
-          <input
-            type="text"
-            value={formData.chqno}
-            onChange={(e) => setFormData({...formData, chqno: e.target.value})}
-          />
-        </label>
-        <label>
-          Voucher No.:
-          <input
-            type="text"
-            value={formData.voucherno}
-            onChange={(e) => setFormData({...formData, voucherno: e.target.value})}
-          />
-        </label>
-        <label>
-          Particulars:
-          <input
-            type="text"
-            value={formData.particulars}
-            onChange={(e) => setFormData({...formData, particulars: e.target.value})}
-          />
-        </label>
+      <div className="form-section">
+        <div className="form-row-top">
+          <div className="input-group">
+            <label className="form-label">Date:</label>
+            <input
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData({...formData, date: e.target.value})}
+              required
+              className="form-input"
+            />
+          </div>
+          <div className="input-group">
+            <label className="form-label">CHQ No.:</label>
+            <input
+              type="text"
+              value={formData.chqno}
+              onChange={(e) => setFormData({...formData, chqno: e.target.value})}
+              className="form-input"
+            />
+          </div>
+          <div className="input-group">
+            <label className="form-label">Voucher No.:</label>
+            <input
+              type="text"
+              value={formData.voucherno}
+              onChange={(e) => setFormData({...formData, voucherno: e.target.value.trim()})}
+              required
+              className="form-input"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="input-group-full">
+            <label className="form-label">Particulars:</label>
+            <input
+              type="text"
+              value={formData.particulars}
+              onChange={(e) => setFormData({...formData, particulars: e.target.value.trim()})}
+              required
+              className="form-input-full"
+            />
+          </div>
+        </div>
       </div>
 
       <table className="receipt-table">
@@ -225,7 +292,7 @@ const Payment = () => {
 
       <div className="buttons-container">
         <button onClick={clearForm}>Clear</button>
-        <button onClick={() => console.log("View clicked")}>View</button>
+        <button onClick={handleView}>View</button>
         <button onClick={() => console.log("Delete clicked")}>Delete</button>
         <button onClick={handleSubmit}>Submit</button>
       </div>

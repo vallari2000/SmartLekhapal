@@ -2,20 +2,29 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api/';
 
+const axiosInstance = axios.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    withCredentials: true // Important for sessions
+});
+
 export const loginUser = async (credentials) => {
     try {
-        const response = await axios.post(`${API_URL}login/`, {
-            username: credentials.username,
-            password: credentials.password
-        });
+        const response = await axiosInstance.post('login/', credentials);
+        if (response.data.data) {
+            localStorage.setItem('user', JSON.stringify(response.data.data));
+        }
         return response.data;
     } catch (error) {
         throw error;
     }
 };
+
 export const getMonthlyPayments = async (zoneid, month, year) => {
     try {
-        const response = await axios.post(`${API_URL}payments/report/`, {
+        const response = await axiosInstance.post('payments/get_monthly_payments/', {
             zoneid,
             month,
             year
@@ -25,48 +34,87 @@ export const getMonthlyPayments = async (zoneid, month, year) => {
         throw error;
     }
 };
-export const createPayment = async (paymentData) => {
+
+export const createPayment = async (data) => {
     try {
-        const response = await axios.post(`${API_URL}payments/`, {
-            zoneid: paymentData.zoneid,
-            date: paymentData.date,
-            chqno: paymentData.chqno,
-            voucherno: paymentData.voucherno,
-            particulars: paymentData.particulars,
-            adm_fees: paymentData.amounts[0] || null,
-            pm_fees: paymentData.amounts[1] || null,
-            apm_fees: paymentData.amounts[2] || null,
-            fppm_fees: paymentData.amounts[3] || null,
-            samvad_donation: paymentData.amounts[4] || null,
-            legal_fund: paymentData.amounts[5] || null,
-            misc_donation: paymentData.amounts[6] || null,
-            drf_fees: paymentData.amounts[7] || null,
-            adv_samvad: paymentData.amounts[8] || null,
-            interest_sb: paymentData.amounts[9] || null,
-            interest_fd: paymentData.amounts[10] || null,
-            investments: paymentData.amounts[11] || null,
-            guest_house_receipt: paymentData.amounts[12] || null,
-            building_fund: paymentData.amounts[13] || null,
-            sundry_receipt: paymentData.amounts[14] || null,
-            dividend: paymentData.amounts[15] || null,
-            tds_amount: paymentData.amounts[16] || null,
-            transfer_to_hq: paymentData.amounts[17] || null,
-            suspense: paymentData.amounts[18] || null,
-            total_amount: paymentData.amounts[19] || null
-        });
+        const response = await axiosInstance.post('payments/', data);
+        return response.data;
+    } catch (error) {
+        console.error('Error in createPayment:', error);
+        throw error.response?.data || error;
+    }
+};
+
+export const getPaymentByVoucher = async (voucherno) => {
+    try {
+        // Check if user is logged in
+        const userData = localStorage.getItem('user');
+        if (!userData) {
+            throw new Error('Please login first');
+        }
+
+        const response = await axiosInstance.get(`payments/by-voucher/${voucherno}/`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching payment:', error);
+        throw error.response?.data || error;
+    }
+};
+
+export const getReceiptByVoucher = async (voucherno) => {
+    try {
+        const userData = localStorage.getItem('user');
+        if (!userData) {
+            throw new Error('Please login first');
+        }
+
+        const response = await axiosInstance.get(`receipts/by-voucher/${voucherno}/`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error;
+    }
+};
+
+export const createReceipt = async (data) => {
+    try {
+        // Get CSRF token
+        const csrfToken = getCsrfToken();
+        if (csrfToken) {
+            axiosInstance.defaults.headers['X-CSRFToken'] = csrfToken;
+        }
+
+        const response = await axiosInstance.post('receipts/', data);
+        return response.data;
+    } catch (error) {
+        console.error('Error in createReceipt:', error);
+        throw error.response?.data || error;
+    }
+};
+
+export const getPayments = async () => {
+    try {
+        const response = await axiosInstance.get('payments/');
         return response.data;
     } catch (error) {
         throw error;
     }
 };
 
-export const getPayments = async () => {
-    try {
-        const response = await axios.get(`${API_URL}payments/`);
-        return response.data;
-    } catch (error) {
-        throw error;
+// Helper function to get CSRF token
+const getCsrfToken = () => {
+    const name = 'csrftoken';
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
+    return cookieValue;
 };
 
 export default { loginUser, createPayment, getPayments };

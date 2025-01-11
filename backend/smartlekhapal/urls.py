@@ -1,15 +1,15 @@
+# urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import LoginViewSet, PaymentViewSet, get_payments
+from .views import LoginViewSet, PaymentViewSet, ReceiptViewSet
 from . import views
 
 router = DefaultRouter()
-router.register(r'users', LoginViewSet)  # Changed from 'login' to avoid confusion
+router.register(r'users', LoginViewSet)
 router.register(r'payments', PaymentViewSet)
+router.register(r'receipts', ReceiptViewSet)
 
 urlpatterns = [
-    path('login/', views.login_user, name='login'),  # This will become /api/login/
-    path('payments/report/', get_payments, name='get_payments'),
-    path('', include(router.urls)),  # This will become /api/users/ and /api/payments/
-    
+    path('login/', views.login_user, name='login'),
+    path('', include(router.urls)),
 ]

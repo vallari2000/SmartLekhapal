@@ -130,3 +130,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Add your frontend URL
+]
+
+# CSRF settings
+CSRF_COOKIE_SAMESITE = 'Lax'  # or 'None' if cross-site
+CSRF_COOKIE_SECURE = True  # if using HTTPS
+SESSION_COOKIE_SECURE = True  # if using HTTPS
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']  # Add your frontend URL
